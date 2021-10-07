@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// ignore: implementation_imports
 import 'package:provider/src/provider.dart';
 import 'package:zomato/models/variables.dart';
 import 'package:zomato/pages/Homepage/detail.dart';
@@ -57,8 +57,7 @@ class _HomepageState extends State<Homepage>
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Center(
-                  child:
-                      CircularProgressIndicator(color: Colors.red.shade400),
+                  child: CircularProgressIndicator(color: Colors.red.shade400),
                 );
               }
 
@@ -68,8 +67,7 @@ class _HomepageState extends State<Homepage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: width * 0.04),
+                        padding: EdgeInsets.symmetric(horizontal: width * 0.04),
                         child: Text(
                           '${snapshot.data!.docs.length} restaurants around you',
                           style: TextStyle(
@@ -79,8 +77,7 @@ class _HomepageState extends State<Homepage>
                       ),
                       SizedBox(height: height * 0.02),
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: width * 0.04),
+                        padding: EdgeInsets.symmetric(horizontal: width * 0.04),
                         child: Column(
                           children: snapshot.data!.docs
                               .map((e) => buildBody(e))
@@ -92,8 +89,7 @@ class _HomepageState extends State<Homepage>
                 );
               } else {
                 return Center(
-                  child:
-                      CircularProgressIndicator(color: Colors.red.shade400),
+                  child: CircularProgressIndicator(color: Colors.red.shade400),
                 );
               }
             },
@@ -284,8 +280,9 @@ class MyDelegate extends SliverPersistentHeaderDelegate {
               ],
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                SizedBox(width: width * 0.035),
                 Icon(
                   Icons.search,
                   color: Colors.red,

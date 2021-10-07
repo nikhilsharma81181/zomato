@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// ignore: implementation_imports
 import 'package:provider/src/provider.dart';
 import 'package:zomato/models/login.dart';
 import 'package:zomato/models/login_model.dart';
 import 'package:zomato/pages/Homepage/homepage.dart';
-import 'package:zomato/pages/Login/Email_Login/email_welcome.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -35,7 +35,7 @@ class _EmailLoginState extends State<EmailLogin> {
         user.sendEmailVerification();
       }
       Navigator.of(context)
-          .pushReplacement(MaterialPageRoute(builder: (context) => Homepage()));
+          .pushReplacement(MaterialPageRoute(builder: (context) => const Homepage()));
     } else {
       print('error');
     }

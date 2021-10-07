@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// ignore: implementation_imports
 import 'package:provider/src/provider.dart';
 import 'package:zomato/models/login.dart';
 import 'package:zomato/models/login_model.dart';
@@ -95,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         buildOther('mail', () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => EmailLogin()));
+                              builder: (context) => const EmailLogin()));
                         }),
                         buildOther2('facebook'),
                         buildOther('google', () {

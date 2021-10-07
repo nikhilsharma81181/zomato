@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ReviewTab extends StatefulWidget {
-  const ReviewTab({ Key? key }) : super(key: key);
+  const ReviewTab({Key? key}) : super(key: key);
 
   @override
   _ReviewTabState createState() => _ReviewTabState();
@@ -10,8 +10,7 @@ class ReviewTab extends StatefulWidget {
 class _ReviewTabState extends State<ReviewTab> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      
-    );
+    // double width = MediaQuery.of(context).size.width;
+    return Container();
   }
 }
