@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:provider/src/provider.dart';
-import 'package:zomato/models/variables.dart';
+import 'package:zomato/models/restaurant.dart';
 import 'package:zomato/pages/Homepage/delivery_tab.dart';
 import 'package:zomato/pages/Homepage/homepage.dart';
 import 'package:zomato/pages/Homepage/review_tab.dart';
@@ -21,7 +21,7 @@ class _DetailPgState extends State<DetailPg>
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    String restaurantsId = context.watch<Variables>().restaurantId;
+    String restaurantsId = context.watch<RestaurantDetail>().restaurantId;
     return Scaffold(
       body: StreamBuilder<DocumentSnapshot>(
         stream: ref.doc(restaurantsId).snapshots(),
@@ -150,10 +150,12 @@ class _DetailPgState extends State<DetailPg>
                     ),
                   )
                 ],
-                body: const TabBarView(
+                body: TabBarView(
                   children: [
-                    DeliveryTab(),
-                    ReviewTab(),
+                    DeliveryTab(
+                      menu: e['menu'],
+                    ),
+                    const ReviewTab(),
                   ],
                 ),
               ),

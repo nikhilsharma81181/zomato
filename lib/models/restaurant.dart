@@ -1,10 +1,11 @@
+
 import 'package:flutter/material.dart';
 
-class Variables extends ChangeNotifier {
+class RestaurantDetail extends ChangeNotifier {
   String restaurantId = '';
 
   getRestaurantId(String id) {
-    restaurantId= id;
+    restaurantId = id;
     notifyListeners();
   }
 }

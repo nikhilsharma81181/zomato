@@ -1,7 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/src/provider.dart';
+import 'package:zomato/models/restaurant.dart';
 
 class DeliveryTab extends StatefulWidget {
-  const DeliveryTab({Key? key}) : super(key: key);
+  final List menu;
+  const DeliveryTab({Key? key, required this.menu}) : super(key: key);
 
   @override
   _DeliveryTabState createState() => _DeliveryTabState();
@@ -10,6 +15,11 @@ class DeliveryTab extends StatefulWidget {
 class _DeliveryTabState extends State<DeliveryTab> {
   @override
   Widget build(BuildContext context) {
+    String restaurantId = context.watch<RestaurantDetail>().restaurantId;
+    CollectionReference dishRef = FirebaseFirestore.instance
+        .collection('restaurants')
+        .doc(restaurantId)
+        .collection('dishes');
     double width = MediaQuery.of(context).size.width;
     // double height = MediaQuery.of(context).size.height;
     return CustomScrollView(
@@ -19,13 +29,200 @@ class _DeliveryTabState extends State<DeliveryTab> {
           floating: true,
           pinned: true,
         ),
-        SliverToBoxAdapter(
-          child: SizedBox(
-            width: width,
-            height: width * 2,
+        for (int i = 0; i < widget.menu.length; i++)
+          SliverToBoxAdapter(
+            child: Container(
+              padding: EdgeInsets.all(width * 0.03),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.menu[i],
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: width * 0.047,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  StreamBuilder(
+                    stream: dishRef.snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.hasError) {
+                        return const SizedBox();
+                      }
+                      if (snapshot.hasData) {
+                        return Column(
+                          children: snapshot.data!.docs
+                              .map((e) => buildDishes(e))
+                              .toList(),
+                        );
+                      } else {
+                        return const SizedBox();
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
+      ],
+    );
+  }
+
+  Widget buildDishes(DocumentSnapshot e) {
+    double width = MediaQuery.of(context).size.width;
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: width * 0.05),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: width * 0.05,
+                    height: width * 0.05,
+                    child: const Image(
+                      image: AssetImage('assets/veg-img.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: width * 0.012),
+                  Text(
+                    e['name'],
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: width * 0.042,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: width * 0.005),
+                  Text(
+                    'In ${e['type']}',
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: width * 0.0324,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  SizedBox(height: width * 0.016),
+                  Text(
+                    '₹${e['price']}',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: width * 0.035,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  SizedBox(height: width * 0.02),
+                  Container(
+                    padding: EdgeInsets.all(width * 0.003),
+                    decoration: BoxDecoration(
+                        color: Colors.amber.shade100.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(
+                          width: 0.05,
+                          color: Colors.amber,
+                        )),
+                    child: RatingBarIndicator(
+                      rating: e['rating'].toDouble(),
+                      itemBuilder: (context, index) => const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                      ),
+                      itemCount: 5,
+                      itemSize: width * 0.031,
+                      unratedColor: Colors.amber.withAlpha(50),
+                    ),
+                  ),
+                  SizedBox(height: width * 0.016),
+                  SizedBox(
+                    width: width * 0.55,
+                    height: width * 0.04,
+                    child: Text(
+                      e['des'],
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: width * 0.0328,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: width * 0.33,
+              height: width * 0.33,
+              child: Stack(
+                children: [
+                  e['img'] != ''
+                      ? Container(
+                          width: width * 0.33,
+                          height: width * 0.26,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            image: DecorationImage(
+                              image: NetworkImage(e['img']),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                      : const SizedBox(),
+                  Positioned(
+                      bottom: 0,
+                      child: SizedBox(
+                        width: width * 0.33,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: width * 0.29,
+                                  height: width * 0.09,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFffedf5),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      width: 0.7,
+                                      color: Colors.pink.shade300,
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'ADD',
+                                    style: TextStyle(
+                                      fontSize: width * 0.045,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                    right: width * 0.012,
+                                    top: width * 0.01,
+                                    child: Icon(
+                                      Icons.add,
+                                      size: width * 0.043,
+                                    ))
+                              ],
+                            ),
+                          ),
+                        ),
+                      ))
+                ],
+              ),
+            ),
+          ],
         ),
-        
+        Divider(
+          thickness: 1,
+          color: Colors.grey.shade300,
+        )
       ],
     );
   }
@@ -42,133 +239,136 @@ class MyDelegate1 extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     double width = MediaQuery.of(context).size.width;
     // double height = MediaQuery.of(context).size.height;
-    return SingleChildScrollView(
-      reverse: true,
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(
-                vertical: width * 0.025,
-                horizontal: width * 0.045,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  buildKeyDetail(
-                    Icons.delivery_dining,
-                    'MODE',
-                    'delivery',
-                    width,
-                  ),
-                  buildKeyDetail(
-                    Icons.timer,
-                    'TIME',
-                    '35 mins',
-                    width,
-                  ),
-                  buildKeyDetail(
-                    Icons.local_offer_outlined,
-                    'OFFERS',
-                    'no offers',
-                    width,
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(width * 0.03),
-              margin: EdgeInsets.symmetric(
-                  horizontal: width * 0.026, vertical: width * 0.02),
-              width: width,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.grey.shade200,
-              ),
-              child: Text(
-                '₹10 additional distance fee',
-                style: TextStyle(
-                  fontSize: width * 0.035,
+    return Container(
+      color: const Color(0xFFfafafa),
+      child: SingleChildScrollView(
+        reverse: true,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(
+                  vertical: width * 0.025,
+                  horizontal: width * 0.045,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    buildKeyDetail(
+                      Icons.delivery_dining,
+                      'MODE',
+                      'delivery',
+                      width,
+                    ),
+                    buildKeyDetail(
+                      Icons.timer,
+                      'TIME',
+                      '35 mins',
+                      width,
+                    ),
+                    buildKeyDetail(
+                      Icons.local_offer_outlined,
+                      'OFFERS',
+                      'no offers',
+                      width,
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Container(
-              height: width * 0.125,
-              margin: EdgeInsets.symmetric(
-                horizontal: width * 0.027,
-                vertical: width * 0.012,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.white.withOpacity(0.9),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade400.withOpacity(0.6),
-                    spreadRadius: 2,
-                    blurRadius: 2,
-                    offset: const Offset(0, 0),
+              Container(
+                padding: EdgeInsets.all(width * 0.03),
+                margin: EdgeInsets.symmetric(
+                    horizontal: width * 0.026, vertical: width * 0.02),
+                width: width,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.grey.shade200,
+                ),
+                child: Text(
+                  '₹10 additional distance fee',
+                  style: TextStyle(
+                    fontSize: width * 0.035,
                   ),
-                ],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(width: width * 0.035),
-                  Icon(
-                    Icons.search,
-                    color: Colors.red,
-                    size: width * 0.07,
-                  ),
-                  SizedBox(width: width * 0.03),
-                  Text(
-                    'Search within the menu...',
-                    style: TextStyle(
-                      fontSize: width * 0.047,
-                      color: Colors.grey.shade400,
+              Container(
+                height: width * 0.125,
+                margin: EdgeInsets.symmetric(
+                  horizontal: width * 0.027,
+                  vertical: width * 0.012,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white.withOpacity(0.9),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.shade400.withOpacity(0.6),
+                      spreadRadius: 2,
+                      blurRadius: 2,
+                      offset: const Offset(0, 0),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(width: width * 0.035),
+                    Icon(
+                      Icons.search,
+                      color: Colors.red,
+                      size: width * 0.07,
+                    ),
+                    SizedBox(width: width * 0.03),
+                    Text(
+                      'Search within the menu...',
+                      style: TextStyle(
+                        fontSize: width * 0.047,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              padding:
-                  EdgeInsets.only(top: width * 0.001, bottom: width * 0.006),
-              color: Colors.white,
-              child: Row(
-                children: [
-                  Switch.adaptive(
-                    value: false,
-                    onChanged: (value) {
-                      value = true;
-                    },
-                  ),
-                  Text(
-                    'Veg',
-                    style: TextStyle(fontSize: width * 0.041),
-                  ),
-                  SizedBox(
-                    width: width * 0.032,
-                  ),
-                  Switch.adaptive(
-                    value: false,
-                    onChanged: (value) {
-                      value = true;
-                    },
-                  ),
-                  Text(
-                    'Non-Veg',
-                    style: TextStyle(fontSize: width * 0.041),
-                  ),
-                ],
+              Container(
+                padding:
+                    EdgeInsets.only(top: width * 0.001, bottom: width * 0.006),
+                color: Colors.white,
+                child: Row(
+                  children: [
+                    Switch.adaptive(
+                      value: false,
+                      onChanged: (value) {
+                        value = true;
+                      },
+                    ),
+                    Text(
+                      'Veg',
+                      style: TextStyle(fontSize: width * 0.041),
+                    ),
+                    SizedBox(
+                      width: width * 0.032,
+                    ),
+                    Switch.adaptive(
+                      value: false,
+                      onChanged: (value) {
+                        value = true;
+                      },
+                    ),
+                    Text(
+                      'Non-Veg',
+                      style: TextStyle(fontSize: width * 0.041),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Divider(
-              height: 1,
-              thickness: 0.7,
-              color: Colors.grey.shade300,
-            )
-          ],
+              Divider(
+                height: 1,
+                thickness: 0.7,
+                color: Colors.grey.shade300,
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -217,7 +417,7 @@ class MyDelegate1 extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => width * 0.55;
+  double get maxExtent => width * 0.565;
 
   @override
   double get minExtent => width * 0.49;

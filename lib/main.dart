@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zomato/models/restaurant.dart';
 import 'package:zomato/models/login_model.dart';
-import 'package:zomato/models/variables.dart';
 import 'package:zomato/pages/Homepage/homepage.dart';
 
 import 'package:zomato/pages/Login/login_page.dart';
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => Country()),
-        ChangeNotifierProvider(create: (_) => Variables()),
+        ChangeNotifierProvider(create: (_) => RestaurantDetail()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

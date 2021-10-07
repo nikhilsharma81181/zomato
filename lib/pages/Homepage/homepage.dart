@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:provider/src/provider.dart';
-import 'package:zomato/models/variables.dart';
+import 'package:zomato/models/restaurant.dart';
 import 'package:zomato/pages/Homepage/detail.dart';
 
 CollectionReference ref = FirebaseFirestore.instance.collection('restaurants');
@@ -104,7 +104,7 @@ class _HomepageState extends State<Homepage>
     double height = MediaQuery.of(context).size.height;
     return GestureDetector(
       onTap: () {
-        context.read<Variables>().getRestaurantId(e.id);
+        context.read<RestaurantDetail>().getRestaurantId(e.id);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => const DetailPg(),
