@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => Country()),
         ChangeNotifierProvider(create: (_) => RestaurantDetail()),
+        ChangeNotifierProvider(create: (_) => CartItems()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

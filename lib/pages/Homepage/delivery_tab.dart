@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+// ignore: implementation_imports
 import 'package:provider/src/provider.dart';
 import 'package:zomato/models/restaurant.dart';
 
@@ -13,59 +14,174 @@ class DeliveryTab extends StatefulWidget {
 }
 
 class _DeliveryTabState extends State<DeliveryTab> {
+  Widget buildAddButton(String name, int price, qnty) {
+    double width = MediaQuery.of(context).size.width;
+    Map items = context.watch<CartItems>().items;
+    return Positioned(
+      bottom: 0,
+      child: SizedBox(
+        width: width * 0.33,
+        child: Align(
+          alignment: Alignment.center,
+          child: Stack(
+            children: [
+              Container(
+                padding: EdgeInsets.all(width * 0.02),
+                width: width * 0.29,
+                height: width * 0.09,
+                decoration: BoxDecoration(
+                  color: !items.containsKey(name)
+                      ? const Color(0xFFffedf5)
+                      : Colors.red[400],
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    width: 0.7,
+                    color: Colors.pink.shade300,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: !items.containsKey(name)
+                    ? GestureDetector(
+                        onTap: () {
+                          context.read<CartItems>().addItem(name, price, qnty);
+                        },
+                        child: Text(
+                          'ADD',
+                          style: TextStyle(
+                            fontSize: width * 0.045,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (items.containsKey(name) &&
+                                  items[name]['quantity'] <= 1) {
+                                context.read<CartItems>().removeItem(name);
+                              } else {
+                                context
+                                    .read<CartItems>()
+                                    .decreaseQuantity(name);
+                              }
+                            },
+                            child: Icon(
+                              Icons.remove,
+                              size: width * 0.047,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            items[name]['quantity'] != null
+                                ? items[name]['quantity'].toString()
+                                : '1',
+                            style: TextStyle(
+                              fontSize: width * 0.044,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              context.read<CartItems>().increaseQuantity(name);
+                            },
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: width * 0.047,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+              if (!items.containsKey(name))
+                Positioned(
+                  right: width * 0.012,
+                  top: width * 0.01,
+                  child: GestureDetector(
+                    onTap: () {
+                      context.read<CartItems>().addItem(name, price, qnty);
+                    },
+                    child: Icon(
+                      Icons.add,
+                      size: width * 0.043,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     String restaurantId = context.watch<RestaurantDetail>().restaurantId;
+    int menuIndex = context.watch<RestaurantDetail>().menuIndex;
+    GlobalKey itemKey = context.watch<RestaurantDetail>().itemKey;
     CollectionReference dishRef = FirebaseFirestore.instance
         .collection('restaurants')
         .doc(restaurantId)
         .collection('dishes');
     double width = MediaQuery.of(context).size.width;
-    // double height = MediaQuery.of(context).size.height;
-    return CustomScrollView(
-      slivers: [
-        SliverPersistentHeader(
-          delegate: MyDelegate1(width),
-          floating: true,
-          pinned: true,
-        ),
-        for (int i = 0; i < widget.menu.length; i++)
-          SliverToBoxAdapter(
-            child: Container(
-              padding: EdgeInsets.all(width * 0.03),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.menu[i],
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: width * 0.047,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  StreamBuilder(
-                    stream: dishRef.snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasError) {
-                        return const SizedBox();
-                      }
-                      if (snapshot.hasData) {
-                        return Column(
-                          children: snapshot.data!.docs
-                              .map((e) => buildDishes(e))
-                              .toList(),
-                        );
-                      } else {
-                        return const SizedBox();
-                      }
-                    },
-                  ),
-                ],
-              ),
+    double height = MediaQuery.of(context).size.height;
+    return Stack(
+      children: [
+        CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              delegate: MyDelegate1(width),
+              floating: true,
+              pinned: true,
             ),
-          ),
+            for (int i = 0; i < widget.menu.length; i++)
+              SliverToBoxAdapter(
+                child: Container(
+                  padding: EdgeInsets.all(width * 0.03),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        key: i == menuIndex ? itemKey : null,
+                        child: Text(
+                          widget.menu[i],
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: width * 0.047,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: height * 0.012),
+                      StreamBuilder(
+                        stream: dishRef
+                            .where('type', isEqualTo: widget.menu[i])
+                            .snapshots(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.hasError) {
+                            return const SizedBox();
+                          }
+                          if (snapshot.hasData) {
+                            return Column(
+                              children: snapshot.data!.docs
+                                  .map((e) => buildDishes(e))
+                                  .toList(),
+                            );
+                          } else {
+                            return const SizedBox();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -154,7 +270,7 @@ class _DeliveryTabState extends State<DeliveryTab> {
                 ],
               ),
             ),
-            Container(
+            SizedBox(
               width: width * 0.33,
               height: width * 0.33,
               child: Stack(
@@ -172,48 +288,7 @@ class _DeliveryTabState extends State<DeliveryTab> {
                           ),
                         )
                       : const SizedBox(),
-                  Positioned(
-                      bottom: 0,
-                      child: SizedBox(
-                        width: width * 0.33,
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: GestureDetector(
-                            onTap: () {},
-                            child: Stack(
-                              children: [
-                                Container(
-                                  width: width * 0.29,
-                                  height: width * 0.09,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFffedf5),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      width: 0.7,
-                                      color: Colors.pink.shade300,
-                                    ),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'ADD',
-                                    style: TextStyle(
-                                      fontSize: width * 0.045,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                    right: width * 0.012,
-                                    top: width * 0.01,
-                                    child: Icon(
-                                      Icons.add,
-                                      size: width * 0.043,
-                                    ))
-                              ],
-                            ),
-                          ),
-                        ),
-                      ))
+                  buildAddButton(e['name'], e['price'], 1),
                 ],
               ),
             ),
