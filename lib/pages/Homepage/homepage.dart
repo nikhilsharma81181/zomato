@@ -104,7 +104,7 @@ class _HomepageState extends State<Homepage>
     double height = MediaQuery.of(context).size.height;
     return GestureDetector(
       onTap: () {
-        context.read<RestaurantDetail>().getRestaurantId(e.id);
+        context.read<RestaurantDetail>().getRestaurantId(e.id,e['name']);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => const DetailPg(),

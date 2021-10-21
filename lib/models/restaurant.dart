@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 
 class RestaurantDetail extends ChangeNotifier {
   String restaurantId = '';
+  String restaurantName = '';
   bool showMenu = false;
   int menuIndex = 0;
 
-  getRestaurantId(String id) {
+  getRestaurantId(String id, name) {
     restaurantId = id;
+    restaurantName = name;
     notifyListeners();
   }
 
@@ -40,6 +42,27 @@ class CartItems extends ChangeNotifier {
   int quantity = 0;
   int totalPrice = 0;
   Timer timer = Timer.periodic(const Duration(seconds: 1), (timer) {});
+  String instructions = '';
+  bool sendCutlery = false;
+
+  perItemTotal(String name) {
+    items[name]['totalPrice'] = items[name]['quantity'] * items[name]['price'];
+    notifyListeners();
+  }
+
+  dsCutlery() {
+    if (sendCutlery) {
+      sendCutlery = false;
+    } else {
+      sendCutlery = true;
+    }
+    notifyListeners();
+  }
+
+  addInstructions(String text) {
+    instructions = text;
+    notifyListeners();
+  }
 
   getExtra() {
     int num = 0;
@@ -53,7 +76,7 @@ class CartItems extends ChangeNotifier {
     notifyListeners();
   }
 
-  addItem(String name, int price, quantity) {
+  addItem(String name, int price, quantity, bool veg) {
     if (!itemList.contains(name)) {
       itemList.add(name);
     }
@@ -72,6 +95,8 @@ class CartItems extends ChangeNotifier {
           'name': name,
           'price': price,
           'quantity': quantity,
+          'veg': veg,
+          'totalPrice': price,
         },
         ifAbsent: () => {},
       );
@@ -93,6 +118,7 @@ class CartItems extends ChangeNotifier {
   increaseQuantity(String name) {
     int num = items[name]['quantity'] ?? 0;
     items[name]['quantity'] = num + 1;
+    perItemTotal(name);
     getExtra();
     notifyListeners();
   }
@@ -100,6 +126,7 @@ class CartItems extends ChangeNotifier {
   decreaseQuantity(String name) {
     int num = items[name]['quantity'] ?? 0;
     items[name]['quantity'] = num - 1;
+    perItemTotal(name);
     getExtra();
     notifyListeners();
   }

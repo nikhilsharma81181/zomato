@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:provider/src/provider.dart';
 import 'package:zomato/models/restaurant.dart';
+import 'package:zomato/pages/Cart&Order/cart.dart';
 import 'package:zomato/pages/Homepage/delivery_tab.dart';
 import 'package:zomato/pages/Homepage/homepage.dart';
 import 'package:zomato/pages/Homepage/review_tab.dart';
@@ -20,6 +21,11 @@ class DetailPg extends StatefulWidget {
 class _DetailPgState extends State<DetailPg>
     with SingleTickerProviderStateMixin {
   Timer timer = Timer.periodic(const Duration(seconds: 1), (timer) {});
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -217,10 +223,14 @@ class _DetailPgState extends State<DetailPg>
   Widget floatingCartBar() {
     double width = MediaQuery.of(context).size.width;
     int quantity = context.watch<CartItems>().quantity;
+    Map items = context.watch<CartItems>().items;
     int totalPrice = context.watch<CartItems>().totalPrice;
-
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => const Cart()));
+        // print(items);
+      },
       child: Container(
         width: width,
         padding: EdgeInsets.all(width * 0.027),

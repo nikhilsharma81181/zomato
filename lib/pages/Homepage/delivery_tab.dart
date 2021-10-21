@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -14,107 +16,12 @@ class DeliveryTab extends StatefulWidget {
 }
 
 class _DeliveryTabState extends State<DeliveryTab> {
-  Widget buildAddButton(String name, int price, qnty) {
-    double width = MediaQuery.of(context).size.width;
-    Map items = context.watch<CartItems>().items;
-    return Positioned(
-      bottom: 0,
-      child: SizedBox(
-        width: width * 0.33,
-        child: Align(
-          alignment: Alignment.center,
-          child: Stack(
-            children: [
-              Container(
-                padding: EdgeInsets.all(width * 0.02),
-                width: width * 0.29,
-                height: width * 0.09,
-                decoration: BoxDecoration(
-                  color: !items.containsKey(name)
-                      ? const Color(0xFFffedf5)
-                      : Colors.red[400],
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    width: 0.7,
-                    color: Colors.pink.shade300,
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: !items.containsKey(name)
-                    ? GestureDetector(
-                        onTap: () {
-                          context.read<CartItems>().addItem(name, price, qnty);
-                        },
-                        child: Text(
-                          'ADD',
-                          style: TextStyle(
-                            fontSize: width * 0.045,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              if (items.containsKey(name) &&
-                                  items[name]['quantity'] <= 1) {
-                                context.read<CartItems>().removeItem(name);
-                              } else {
-                                context
-                                    .read<CartItems>()
-                                    .decreaseQuantity(name);
-                              }
-                            },
-                            child: Icon(
-                              Icons.remove,
-                              size: width * 0.047,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            items[name]['quantity'] != null
-                                ? items[name]['quantity'].toString()
-                                : '1',
-                            style: TextStyle(
-                              fontSize: width * 0.044,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              context.read<CartItems>().increaseQuantity(name);
-                            },
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: width * 0.047,
-                            ),
-                          ),
-                        ],
-                      ),
-              ),
-              if (!items.containsKey(name))
-                Positioned(
-                  right: width * 0.012,
-                  top: width * 0.01,
-                  child: GestureDetector(
-                    onTap: () {
-                      context.read<CartItems>().addItem(name, price, qnty);
-                    },
-                    child: Icon(
-                      Icons.add,
-                      size: width * 0.043,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Timer timer = Timer.periodic(const Duration(seconds: 1), (timer) {});
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   @override
@@ -180,9 +87,155 @@ class _DeliveryTabState extends State<DeliveryTab> {
                   ),
                 ),
               ),
+            SliverToBoxAdapter(
+              child: Container(
+                padding: EdgeInsets.all(width * 0.035),
+                width: width,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Report an issue with the menu',
+                          style: TextStyle(
+                            fontSize: width * 0.033,
+                            color: Colors.red.shade400,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_right,
+                          color: Colors.red.shade400,
+                          size: width * 0.047,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: height * 0.032),
+                    Text(
+                      'Menu and prices are set directly by the restaurant.',
+                      style: TextStyle(
+                        fontSize: width * 0.033,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    SizedBox(height: height * 0.032),
+                  ],
+                ),
+              ),
+            )
           ],
         ),
       ],
+    );
+  }
+
+  Widget buildAddButton(String name, int price, qnty, bool veg) {
+    double width = MediaQuery.of(context).size.width;
+    Map items = context.watch<CartItems>().items;
+    return Positioned(
+      bottom: 0,
+      child: SizedBox(
+        width: width * 0.33,
+        child: Align(
+          alignment: Alignment.center,
+          child: Stack(
+            children: [
+              Container(
+                padding: EdgeInsets.all(width * 0.02),
+                width: width * 0.29,
+                height: width * 0.09,
+                decoration: BoxDecoration(
+                  color: !items.containsKey(name)
+                      ? const Color(0xFFffedf5)
+                      : Colors.red[400],
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    width: 0.7,
+                    color: Colors.pink.shade300,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: !items.containsKey(name)
+                    ? GestureDetector(
+                        onTap: () {
+                          context
+                              .read<CartItems>()
+                              .addItem(name, price, qnty, veg);
+                        },
+                        child: Text(
+                          'ADD',
+                          style: TextStyle(
+                            fontSize: width * 0.045,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (items.containsKey(name) &&
+                                  items[name]['quantity'] <= 1) {
+                                context.read<CartItems>().removeItem(name);
+                              } else {
+                                context
+                                    .read<CartItems>()
+                                    .decreaseQuantity(name);
+                              }
+                            },
+                            child: Icon(
+                              Icons.remove,
+                              size: width * 0.047,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            items[name]['quantity'] != null
+                                ? items[name]['quantity'].toString()
+                                : '1',
+                            style: TextStyle(
+                              fontSize: width * 0.044,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              context.read<CartItems>().increaseQuantity(name);
+                            },
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: width * 0.047,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+              if (!items.containsKey(name))
+                Positioned(
+                  right: width * 0.012,
+                  top: width * 0.01,
+                  child: GestureDetector(
+                    onTap: () {
+                      context.read<CartItems>().addItem(name, price, qnty, veg);
+                      timer =
+                          Timer.periodic(const Duration(milliseconds: 100), (timer) {
+                        context.read<CartItems>().perItemTotal(name);
+                        timer.cancel();
+                      });
+                    },
+                    child: Icon(
+                      Icons.add,
+                      size: width * 0.043,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -201,8 +254,10 @@ class _DeliveryTabState extends State<DeliveryTab> {
                   SizedBox(
                     width: width * 0.05,
                     height: width * 0.05,
-                    child: const Image(
-                      image: AssetImage('assets/veg-img.png'),
+                    child: Image(
+                      image: e['veg']
+                          ? const AssetImage('assets/veg-img.png')
+                          : const AssetImage('assets/non-veg-icon.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -288,7 +343,7 @@ class _DeliveryTabState extends State<DeliveryTab> {
                           ),
                         )
                       : const SizedBox(),
-                  buildAddButton(e['name'], e['price'], 1),
+                  buildAddButton(e['name'], e['price'], 1, e['veg']),
                 ],
               ),
             ),
