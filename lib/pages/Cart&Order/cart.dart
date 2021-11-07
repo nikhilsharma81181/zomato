@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:zomato/models/restaurant.dart';
+import 'package:zomato/pages/AddDetails/add_personal_details.dart';
 
 class Cart extends StatefulWidget {
   const Cart({Key? key}) : super(key: key);
@@ -45,7 +46,7 @@ class _CartState extends State<Cart> {
                 ),
               ),
             ),
-            SizedBox(height: height * 0.1),
+            SizedBox(height: height * 0.34),
           ],
         ),
       ),
@@ -58,11 +59,14 @@ class _CartState extends State<Cart> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: RawMaterialButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const PersonalDetails()));
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(width: 1),
+              const SizedBox(width: 45),
               Text(
                 'Add person details',
                 style: TextStyle(
@@ -103,12 +107,18 @@ class _CartState extends State<Cart> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Text(
-                'Add',
-                style: TextStyle(
-                  fontSize: width * 0.04,
-                  color: Colors.red,
-                  fontWeight: FontWeight.w400,
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const PersonalDetails()));
+                },
+                child: Text(
+                  'Add',
+                  style: TextStyle(
+                    fontSize: width * 0.04,
+                    color: Colors.red,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
             ],
@@ -195,7 +205,7 @@ class _CartState extends State<Cart> {
                 ),
               ),
               Text(
-                (totalPrice + taxes + 20 + 1).toString(),
+                '₹${(totalPrice + taxes + 20 + 1).toDouble()}0',
                 style: TextStyle(
                   fontSize: width * 0.049,
                   fontWeight: FontWeight.w600,

@@ -131,3 +131,10 @@ class CartItems extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+
+class Order {
+  placeOrder() {
+    
+  }
+}

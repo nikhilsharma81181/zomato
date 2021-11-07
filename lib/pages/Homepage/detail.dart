@@ -223,7 +223,6 @@ class _DetailPgState extends State<DetailPg>
   Widget floatingCartBar() {
     double width = MediaQuery.of(context).size.width;
     int quantity = context.watch<CartItems>().quantity;
-    Map items = context.watch<CartItems>().items;
     int totalPrice = context.watch<CartItems>().totalPrice;
     return GestureDetector(
       onTap: () {
